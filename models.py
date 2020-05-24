@@ -11,6 +11,10 @@ class Perceptron(nn.Module):
 
         self.layers = nn.Sequential(
             nn.Linear(self.input_dim, self.mid_dim),
+            nn.BatchNorm1d(self.mid_dim),
+            nn.ReLU(),
+            nn.Linear(self.mid_dim, self.mid_dim),
+            nn.BatchNorm1d(self.mid_dim),
             nn.ReLU(),
             nn.Linear(self.mid_dim, self.output_dim),
             nn.Softmax()
