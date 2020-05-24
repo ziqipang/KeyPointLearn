@@ -23,6 +23,8 @@ def process_json_file(file_name, threshold=0.6):
     # first get the class name
     last_location = file_name.rfind('_') - 4
     class_name = file_name[:last_location]
+    first_index = class_name.rfind('/')
+    class_name = class_name[first_index + 1:]
 
     # then process the file
     f = open(file_name, 'r')
@@ -72,6 +74,9 @@ def main(args):
             print('{}'.format(i))
 
     print(class_names)
+    f = open(os.path.join(args.dst_dir, 'class_names.json'), 'w')
+    json.dump(class_names, f)
+    f.close()
     f = open(os.path.join(args.dst_dir, 'data.json'), 'w')
     json.dump(target_json, f)
     f.close()
