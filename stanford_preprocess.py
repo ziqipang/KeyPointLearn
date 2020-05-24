@@ -7,8 +7,13 @@ import numpy as np
 parser = argparse.ArgumentParser()
 parser.add_argument('--src_dir', default='../Stanford_Raw/', help='where you store the raw open pose data')
 parser.add_argument('--dst_dir', default='data/Stanford/', help='where you put the preprocessed file')
-
+parser.add_argument('--threshold', default=0.6)
+parser.add_argument('--critical_joints', default='data/Stanford/critical_joints.json')
 args = parser.parse_args()
+
+fp = open(args.critical_joints, 'r')
+args.critical_joints = json.load(fp)
+fp.close()
 
 
 def process_json_file(file_name, threshold=0.6):
@@ -55,6 +60,37 @@ def process_json_file(file_name, threshold=0.6):
     return [person_data, class_name]
 
 
+def filter_func(args, critical_joints):
+    """
+    if the person does not have a critical joint, then we abandon it
+    :param args
+    :param critical_joints
+    :return: write new json file to data_final.json
+    """
+    f = open(args.dst_dir + 'data.json', 'r')
+    people_data = json.load(f)
+    f.close()
+
+    def judge(x, y):
+        return x == 0 and y == 0
+
+    new_people_data = []
+
+    for person in people_data:
+        pose = person['key_point']
+        flag = True
+        for joint_index in critical_joints:
+            if judge(pose[joint_index][0], pose[joint_index][1]):
+                flag = False
+                break
+        if flag:
+            new_people_data.append(person)
+    print(len(new_people_data))
+    f = open(args.dst_dir + 'data_final.json', 'w')
+    json.dump(new_people_data, f)
+    f.close()
+
+
 def main(args):
     json_list = os.listdir(args.src_dir)
     print('In Total {} files'.format(len(json_list)))
@@ -62,7 +98,7 @@ def main(args):
     target_json = list()
 
     for i, file_name in enumerate(json_list):
-        person_data, class_name = process_json_file(args.src_dir + file_name)
+        person_data, class_name = process_json_file(args.src_dir + file_name, args.threshold)
         if person_data is None:
             continue
         if class_name not in class_names:
@@ -84,3 +120,4 @@ def main(args):
 
 if __name__ == '__main__':
     main(args)
+    filter_func(args, args.critical_joints)
