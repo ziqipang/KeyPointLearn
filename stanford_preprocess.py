@@ -5,8 +5,8 @@ import numpy as np
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--src_dir', default='../Stanford_Raw/')
-parser.add_argument('--dst_dir', default='data/Stanford/')
+parser.add_argument('--src_dir', default='../Stanford_Raw/', help='where you store the raw open pose data')
+parser.add_argument('--dst_dir', default='data/Stanford/', help='where you put the preprocessed file')
 
 args = parser.parse_args()
 
@@ -16,7 +16,8 @@ def process_json_file(file_name, threshold=0.6):
     read the json in
     filter people out
     and the class name
-    :param file_name:
+    :param file_name: input json file name
+    :param threshold: filter the people with confidence
     :return: (key_point_json, class_name)
     """
     # first get the class name
